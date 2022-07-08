@@ -6,6 +6,7 @@
 
 -export([init/2,
          lock/2,
+         grepStr/0,
          download/4,
          needs_update/2,
          make_vsn/2]).
@@ -16,6 +17,20 @@
         ]).
 
 -spec init(atom(), rebar_state:t()) -> {ok, rebar_resource_v2:resource()}.
+
+grepStr() ->
+    case os:type() of
+        {unix , _} ->
+            "grep";
+        {win32, _} ->
+            "findstr";
+        _ ->
+            "grep"
+        end.    
+    
+        
+
+
 init(Type, _State) ->
     Resource = rebar_resource_v2:new(Type, ?MODULE, #{}),
     {ok, Resource}.
@@ -166,9 +181,12 @@ make_tag_url(Url, Tag) ->
     end.
 
 compare_url(Dir, Url) ->
-    CurrentUrl = trim(os:cmd("svn info \"" ++
+    Str = trim(os:cmd("svn info \"" ++
                                  rebar_utils:escape_double_quotes(Dir) ++
-                                 "\" | grep URL | cut -c6\\- ")),
+                                 "\" | " ++ grepStr() ++ " URL")),
+    {ok, "URL: " ++ CurrentUrl0} = Str,
+    CurrentUrl = trim(CurrentUrl0),
+
     {_, Host1, Path1} = parse_svn_url(CurrentUrl),
     {_, HostU, PathU} = parse_svn_url(Url),
     %%?INFO("Comparing URLs ~ts (~tp) with ~ts (~tp)", [CurrentUrl,  {Host1, Path1}, Url, {HostU, PathU}]),
@@ -187,7 +205,7 @@ maybe_warn_local_url(Url) ->
 local_svn_tag(Dir) ->
     AbortMsg = io_lib:format("Get tag name of svn dependency failed in ~ts", [Dir]),
     Str = rebar_utils:sh("svn info \"" ++  rebar_utils:escape_double_quotes(Dir) ++
-                             "\" | grep URL", [{use_stdout, false},
+                             "\" | " ++ grepStr() ++ " URL", [{use_stdout, false},
                                                {debug_abort_on_error, AbortMsg}]),
     {ok, "URL: " ++ URL} = Str,
     URL1 = trim(URL),
@@ -213,7 +231,7 @@ svn_revision(Path, Where) ->
     AbortMsg = io_lib:format("Get svn revision of svn dependency failed in ~ts", [Path]),
     Rev = rebar_utils:sh("svn info -r " ++ Where ++ " \"" ++
                              rebar_utils:escape_double_quotes(Path) ++
-                             "\" | grep 'Last Changed Rev: '", [{use_stdout, false},
+                             "\" | " ++ grepStr() ++ " 'Last Changed Rev: '", [{use_stdout, false},
                                                                 {debug_abort_on_error, AbortMsg}]),
     {ok, "Last Changed Rev: " ++ RevNum} = Rev,
     trim(RevNum).
