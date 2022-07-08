@@ -23,7 +23,7 @@ grepStr() ->
         {unix , _} ->
             "grep";
         {win32, _} ->
-            "findstr";
+            "findstr /b";
         _ ->
             "grep"
         end.    
@@ -183,7 +183,7 @@ make_tag_url(Url, Tag) ->
 compare_url(Dir, Url) ->
     Str = trim(os:cmd("svn info \"" ++
                                  rebar_utils:escape_double_quotes(Dir) ++
-                                 "\" | " ++ grepStr() ++ " URL")),
+                                 "\" | " ++ grepStr() ++ " URL:")),
     {ok, "URL: " ++ CurrentUrl0} = Str,
     CurrentUrl = trim(CurrentUrl0),
 
@@ -205,7 +205,7 @@ maybe_warn_local_url(Url) ->
 local_svn_tag(Dir) ->
     AbortMsg = io_lib:format("Get tag name of svn dependency failed in ~ts", [Dir]),
     Str = rebar_utils:sh("svn info \"" ++  rebar_utils:escape_double_quotes(Dir) ++
-                             "\" | " ++ grepStr() ++ " URL", [{use_stdout, false},
+                             "\" | " ++ grepStr() ++ " URL:", [{use_stdout, false},
                                                {debug_abort_on_error, AbortMsg}]),
     {ok, "URL: " ++ URL} = Str,
     URL1 = trim(URL),
@@ -228,12 +228,13 @@ local_svn_revision(Dir) ->
 %% Use the "Last Changed Rev: " field to avoid update
 %% deps for commits in other parts of the svn repo
 svn_revision(Path, Where) ->
-    AbortMsg = io_lib:format("Get svn revision of svn dependency failed in ~ts", [Path]),
+    AbortMsg = io_lib:format("Get svn revision of svn dependency failed in ~ts  ~ts", [Path,Where]),
     Rev = rebar_utils:sh("svn info -r " ++ Where ++ " \"" ++
                              rebar_utils:escape_double_quotes(Path) ++
-                             "\" | " ++ grepStr() ++ " 'Last Changed Rev: '", [{use_stdout, false},
+                             "\" | " ++ grepStr() ++ " \"Last\ Changed\ Rev: \"", [{use_stdout, false},
                                                                 {debug_abort_on_error, AbortMsg}]),
     {ok, "Last Changed Rev: " ++ RevNum} = Rev,
+
     trim(RevNum).
 
 parse_svn_url("svn://" ++ HostPath) ->
