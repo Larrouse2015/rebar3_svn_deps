@@ -228,12 +228,12 @@ local_svn_revision(Dir) ->
 %% Use the "Last Changed Rev: " field to avoid update
 %% deps for commits in other parts of the svn repo
 svn_revision(Path, Where) ->
-    AbortMsg = io_lib:format("Get svn revision of svn dependency failed in ~ts  ~ts", [Path,Where]),
+    AbortMsg = io_lib:format("Get svn revision of svn dependency failed in ~ts", [Path]),
     Rev = rebar_utils:sh("svn info -r " ++ Where ++ " \"" ++
                              rebar_utils:escape_double_quotes(Path) ++
-                             "\" | " ++ grepStr() ++ " \"Last\ Changed\ Rev: \"", [{use_stdout, false},
+                             "\" | " ++ grepStr() ++ " Revision:", [{use_stdout, false},
                                                                 {debug_abort_on_error, AbortMsg}]),
-    {ok, "Last Changed Rev: " ++ RevNum} = Rev,
+    {ok, "Revision:" ++ RevNum} = Rev,
 
     trim(RevNum).
 
