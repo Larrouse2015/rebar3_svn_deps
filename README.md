@@ -22,10 +22,10 @@ Configure subversion hosted dependencies with entries in deps:
 
 ```erlang
 {deps, [
-  {hello_lib, "." {svn, "svn://svnrepo/hello_lib/trunk", "HEAD"}},
-  {hello,     "." {svn, "svn://svnrepo/hello", {branch, "feature1"}}},
-  {hello_app, "." {svn, "svn://svnrepo/hello_app", {tag, "release_tag1"}}},
-  {hello_dep, "." {svn, "svn://svnrepo/hello_dep/trunk", {rev, "17983"}}}
+  {hello_lib, ".", {svn, "svn://svnrepo/hello_lib/trunk", "HEAD"}},
+  {hello,     ".", {svn, "svn://svnrepo/hello", {branch, "feature1"}}},
+  {hello_app, ".", {svn, "svn://svnrepo/hello_app", {tag, "release_tag1"}}},
+  {hello_dep, ".", {svn, "svn://svnrepo/hello_dep/trunk", {rev, "17983"}}}
   ..
 ]
 
