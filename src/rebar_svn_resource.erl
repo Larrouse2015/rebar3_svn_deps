@@ -184,7 +184,7 @@ compare_url(Dir, Url) ->
     Str = trim(os:cmd("svn info \"" ++
                                  rebar_utils:escape_double_quotes(Dir) ++
                                  "\" | " ++ grepStr() ++ " URL:")),
-    {ok, "URL: " ++ CurrentUrl0} = Str,
+    "URL: " ++ CurrentUrl0 = Str,
     CurrentUrl = trim(CurrentUrl0),
 
     {_, Host1, Path1} = parse_svn_url(CurrentUrl),
